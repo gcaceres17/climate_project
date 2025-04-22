@@ -59,9 +59,13 @@ col = ['Fecha', 'Hora', 'Condicion', 'Temperatura', 'Lluvia', 'prob_lluvia']
 df = pd.DataFrame(datos, columns=col)
 df = df.sort_values(by='Hora', ascending=True)
 
-# Filtrar las horas en las que se espera lluvia
-df_rain = df[(df['Lluvia'] == 1) & (df['Hora'] > 6) & (df['Hora'] < 22)]
-df_rain = df_rain[['Hora', 'Condicion']]
+# Incluir todas las horas en el pronóstico
+df_rain = df[['Hora', 'Condicion', 'Temperatura', 'Lluvia', 'prob_lluvia']].copy()
+df_rain['Hora'] = df_rain['Hora'].apply(lambda x: f'{x:02d}:00')
+df_rain['Lluvia'] = df_rain['Lluvia'].apply(lambda x: 'Si' if x == 1 else 'No')
+df_rain['prob_lluvia'] = df_rain['prob_lluvia'].apply(lambda x: f'{x}%')
+df_rain['Condicion'] = df_rain['Condicion'].apply(lambda x: x.capitalize())
+df_rain['Temperatura'] = df_rain['Temperatura'].apply(lambda x: f'{x}°C')
 df_rain.set_index('Hora', inplace=True)
 
 # Crear el mensaje con el pronóstico del tiempo
@@ -82,4 +86,4 @@ message = client.messages.create(
     to='+595972459748'
 )
 
-print('Mensaje Enviado Correctamente' + message.sid)
+print('Mensaje Enviado Correctamente' + message.sid + ' ' + message_body) 
